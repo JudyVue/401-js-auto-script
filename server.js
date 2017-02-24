@@ -4,37 +4,68 @@ require('dotenv').config();
 
 const superagent = require('superagent');
 
-let startURL = 'https://canvas.instructure.com/api/v1'
 
-let testURL = `${startURL}/courses/${process.env.COURSE_ID}/assignments/5939248/submissions`;
+//The ideal URL
+//https://canvas.instructure.com/api/v1/courses/1107581/assignments?bucket=ungraded&?per_page=999
 
-///api/v1/courses/:course_id/modules/:module_id/items
+//This maps to:
+//https://canvas.instructure.com/api/v1/courses/1107581/assignments/5939248/submissions?per_page=1000
+//Use this URL to get ungraded assignments
 
-let modulesURL = `${startURL}/courses/${process.env.COURSE_ID}/modules`
-let assgnURL = 'https://canvas.instructure.com/api/v1/courses/1107581/assignments?bucket=ungraded&?per_page=999'
-let pullRequestLinks = [];
+let startURL = `https://canvas.instructure.com/api/v1/courses/${process.env.COURSE_ID}`
 
-let ghURL = 'https://github.com/codefellows-seattle-javascript-401d14/lab-31-frontend-auth/pull/4'
+let studentsURL = `${startURL}/students`
 
-// superagent.get(assgnURL)
-// .set('Authorization', `Bearer ${process.env.CANVAS_TOKEN}`)
-// .then(res => {
-//   return console.log(res.body);
-// })
-// .catch(err => console.error(err.message));
+let ungradedLabsURL = `${startURL}/assignments?bucket=ungraded&?per_page=1000`
 
-superagent.get(ghURL)
+
+let ghURL = 'https://github.com/codefellows-seattle-javascript-401d14/lab-31-frontend-auth/pull/4';
+
+// {
+//   repoURL:
+//   assnCanvasID:
+//   labName:
+//   studentID:
+// }
+
+// return {
+//   firstName:
+//   lastName:
+//   dirName:
+//   canvasID:
+//   githubUserName:
+//   ungradedLabs: []
+//   ungradedReadings
+// }
+
+let students = [];
+
+const student = (data) => {
+  let firstName = data.name.split(' ')[0].trim();
+  let lastName = data.name.split(' ')[1].trim();
+  let studentModel = {
+    firstName,
+    lastName,
+    dirName: `${firstName}-${lastName[0]}`.toLowerCase(),
+    canvasID: data.id,
+  };
+  return studentModel;
+};
+//
+superagent.get(studentsURL)
+.set('Authorization', `Bearer ${process.env.CANVAS_TOKEN}`)
 .then(res => {
-  return console.log(res.text.slice(0, 5000));
+  return res.body;
+})
+.then((res) => {
+  return students = res.map(element => student(element));
 })
 .catch(err => console.error(err.message));
 
-// superagent.get(testURL)
-// .set('Authorization', `Bearer ${process.env.CANVAS_TOKEN}`)
-// .then(res => {
-//   return pullRequestLinks = res.body.map(assignment => assignment.url);
-// })
-// .then(links => {
-//   console.log(pullRequestLinks, 'did we get links?');
-// })
-// .catch(err => console.error(err.message));
+
+superagent.get(ungradedLabsURL)
+.set('Authorization', `Bearer ${process.env.CANVAS_TOKEN}`)
+.then(res => {
+  console.log(res.body);
+})
+.catch(err => console.error(err.message));
