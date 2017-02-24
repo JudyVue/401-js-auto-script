@@ -2,7 +2,8 @@
 
 require('dotenv').config();
 
-const superagent = require('superagent');
+const Promise = require('bluebird');
+const childProcess = Promise.promisifyAll(require('child_process'));
 
 
 //The ideal URL
@@ -25,31 +26,9 @@ let ghURL = 'https://api.github.com';
 let className = 'codefellows-seattle-javascript-401d14';
 
 
-//not really using this
-const student = (data) => {
-  if(data.name){
-    var firstName = data.name.split(' ')[0].trim();
-    var lastName = data.name.split(' ')[1].trim();
-  }
-  let ungradedLabs = data.ungradedAssns;
-  let studentModel = {
-    firstName,
-    lastName,
-    dirName: `${firstName}-${lastName[0]}`.toLowerCase(),
-    canvasID: data.id,
-    ungradedLabs,
-  };
-  return studentModel;
-};
-
-
-
-// superagent.get(studentsURL)
-// .set('Authorization', `Bearer ${process.env.CANVAS_TOKEN}`)
-// .then(res => {
-//   return res.body;
-// })
-// .then((res) => {
-//   return students = res.map(element => student(element));
-// })
-// .catch(err => console.error(err.message));
+return childProcess.execAsync('git clone https://github.com/codefellows-seattle-javascript-401d14/lab-31-frontend-auth.git')
+.then(() => {
+  console.log('success!');
+}).catch(err => {
+  console.error(err);
+});
