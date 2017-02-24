@@ -1,3 +1,15 @@
+2/24/16 New Plan, ditching the Canvas API for now
+1. Use Github API instead
+2. Git clone the main codefellows lab repo
+3. When PRs are submitted, you can just run following git command:
+  * git fetch origin pull/<pull-number>/head:<gh-username>
+    **/head:<gh-username> checks out a new branch that contains that student's current work
+
+
+1. Clone lab github repo
+
+
+2/22/16
 1. Generate list (array) of students and their ungraded lab assignments.
    * Set up each student as their own model in the form of constructor (or factory fn for a more fn program approach)
    * Properties needed:
