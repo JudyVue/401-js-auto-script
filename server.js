@@ -27,9 +27,11 @@ let students = [];
 let ungradedLabIDs = [];
 
 const student = (data) => {
-  let firstName = data.name.split(' ')[0].trim();
-  let lastName = data.name.split(' ')[1].trim();
-  let ungradedLabs = [];
+  if(data.name){
+    var firstName = data.name.split(' ')[0].trim();
+    var lastName = data.name.split(' ')[1].trim();
+  }
+  let ungradedLabs = data.ungradedAssns;
   let studentModel = {
     firstName,
     lastName,
@@ -66,14 +68,22 @@ superagent.get(ungradedLabsURL)
   return res.body.filter(lab => lab.graded_at === null).filter(lab => lab.submission_type !== discussion)
 })
 .then(labs => {
-  let obj = {};
+  let obj = {
+    ungradedAssns: [],
+  };
+  let ungraded = {};
   for (let student of students){
     for (let lab of labs){
       if (student.canvasID === lab.user_id){
-        ungraded.canvasLabID = lab.assignment_id;
-        ungraded.labName =
+        ungraded = {
+          labCanvasID: lab.assignment_id,
+          studentName: student.name,
+        }
       }
     }
+    obj.ungradedAssns.push(ungraded);
   }
+  console.log(obj);
+  return console.log(student(obj));
 })
 .catch(err => console.error(err.message));
