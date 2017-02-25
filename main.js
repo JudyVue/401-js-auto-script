@@ -54,11 +54,9 @@ const fetchPullRequests = (url, num) => {
       num++;
       return fetchPullRequests(url, num);
     })
-    .catch((err) => {
+    .catch(() => {
       if (num === 1) console.log('This repo has no PRs.');
-
       if (num > 1) console.log('All PRs pulled down.');
-
     });
   }
 };
