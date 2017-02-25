@@ -31,7 +31,7 @@ let gitFetch = 'git fetch origin pull';
 const main = (url) => {
   return fetchMainLabRepo(url)
   .then(() => {
-    return fetchPullRequests(url);
+    return fetchPullRequests(url, 1);
   });
 };
 
@@ -40,21 +40,25 @@ const fetchMainLabRepo = (url) => {
   return childProcess.execAsync(`git clone ${url}`)
   .then(() => {
     console.log('success cloning main lab repo!');
-  }).catch(err => {
-    console.error(err);
+  }).catch(() => {
+    console.error('folder already exists');
   });
 };
 
-const fetchPullRequests = (url) => {
-  let num = 0;
-  while(!isNaN(num)){
+const fetchPullRequests = (url, num) => {
+  while(num){
     let labName = url.split('/').pop().split('.git').join('').trim();
-    return childProcess.execAsync(`cd ${labName}; ${gitFetch}/${++num}/head:${num}`)
+    return childProcess.execAsync(`cd ${labName}; ${gitFetch}/${num}/head:${num}`)
     .then(() => {
       console.log(`success fetching pull# ${num}`);
+      num++;
+      return fetchPullRequests(url, num);
     })
-    .catch(err => {
-      console.error(err);
+    .catch((err) => {
+      if (num === 1) console.log('This repo has no PRs.');
+
+      if (num > 1) console.log('All PRs pulled down.');
+
     });
   }
 };
