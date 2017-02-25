@@ -21,14 +21,42 @@ let studentsURL = `${canvasURL}/students`
 
 let ungradedLabsURL = `${canvasURL}/assignments?bucket=ungraded&${perPage}`
 
+let className = 'codefellows-seattle-javascript-401d14';
 let ghURL = 'https://api.github.com';
 
-let className = 'codefellows-seattle-javascript-401d14';
+let command = process.argv[2];
 
+let gitFetch = 'git fetch origin pull';
 
-return childProcess.execAsync('git clone https://github.com/codefellows-seattle-javascript-401d14/lab-31-frontend-auth.git')
-.then(() => {
-  console.log('success!');
-}).catch(err => {
-  console.error(err);
-});
+const main = (url) => {
+  return fetchMainLabRepo(url)
+  .then(() => {
+    return fetchPullRequests(url);
+  });
+};
+
+//clones down the class's main lab repo
+const fetchMainLabRepo = (url) => {
+  return childProcess.execAsync(`git clone ${url}`)
+  .then(() => {
+    console.log('success cloning main lab repo!');
+  }).catch(err => {
+    console.error(err);
+  });
+};
+
+const fetchPullRequests = (url) => {
+  let num = 0;
+  while(!isNaN(num)){
+    let labName = url.split('/').pop().split('.git').join('').trim();
+    return childProcess.execAsync(`cd ${labName}; ${gitFetch}/${++num}/head:${num}`)
+    .then(() => {
+      console.log(`success fetching pull# ${num}`);
+    })
+    .catch(err => {
+      console.error(err);
+    });
+  }
+};
+
+main(command);
