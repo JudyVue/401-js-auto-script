@@ -4,13 +4,15 @@
   "description": "Automated cloning script for Advanced JavaScript 401 TA's",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "DEBUG=main node main.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "bluebird": "^3.4.7",
+    "debug": "^2.6.1",
     "dotenv": "^4.0.0",
     "superagent": "^3.4.4"
   },

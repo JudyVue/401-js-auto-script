@@ -5,7 +5,7 @@ require('dotenv').config();
 const Promise = require('bluebird');
 const childProcess = Promise.promisifyAll(require('child_process'));
 const superagent = require('superagent');
-const debug = require('debug');
+const debug = require('debug')('main');
 
 
 //The ideal URL
@@ -29,7 +29,7 @@ let ghURL = 'https://api.github.com';
 let arg1 = process.argv[2];
 let arg2 = process.argv[3];
 
-let gitFetch = 'git fetch origin pull';
+
 
 const main = (url) => {
   return fetchMainLabRepo(url)
@@ -42,24 +42,25 @@ const main = (url) => {
 const fetchMainLabRepo = (url) => {
   return childProcess.execAsync(`git clone ${url}`)
   .then(() => {
-    console.log('success cloning main lab repo!');
+    debug('success cloning main lab repo!');
   }).catch(() => {
     console.error('folder already exists');
   });
 };
 
 const fetchPullRequests = (url, num) => {
+  let gitFetch = 'git fetch origin pull';
   while(num){
     let labName = url.split('/').pop().split('.git').join('').trim();
     return childProcess.execAsync(`cd ${labName}; ${gitFetch}/${num}/head:${num}`)
     .then(() => {
-      console.log(`success fetching pull# ${num}`);
+      debug(`success fetching pull# ${num}`);
       num++;
       return fetchPullRequests(url, num);
     })
     .catch(() => {
-      if (num === 1) console.log('This repo has no PRs.');
-      if (num > 1) console.log('All PRs pulled down.');
+      if (num === 1) debug('This repo has no PRs.');
+      if (num > 1) debug('All PRs pulled down.');
     });
   }
 };
@@ -74,9 +75,9 @@ const postGrade = (score, comment = null) => {
   .set('Authorization', `Bearer ${process.env.CANVAS_TOKEN}`)
   .end(err => {
     if(err) return console.error(err.message, 'error');
-    console.log('post successful');
+    debug('post successful');
   });
 };
 
 postGrade(arg1, arg2);
-// main(command);
+main(arg1);
