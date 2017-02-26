@@ -32,10 +32,10 @@ let arg2 = process.argv[3];
 
 
 const main = (url) => {
-  return fetchMainLabRepo(url)
-  .then(() => {
-    return fetchPullRequests(url, 1);
-  });
+  Promise.all([
+    fetchMainLabRepo(url),
+    fetchPullRequests(url, 1),
+  ]);
 };
 
 //clones down the class's main lab repo
@@ -44,7 +44,7 @@ const fetchMainLabRepo = (url) => {
   .then(() => {
     debug('success cloning main lab repo!');
   }).catch(() => {
-    console.error('folder already exists');
+    debug('folder already exists');
   });
 };
 
@@ -74,10 +74,13 @@ const postGrade = (score, comment = null) => {
   superagent.put(`${canvasPostURL}/?${gradeKey}=${score}&${commentKey}=${comment}`)
   .set('Authorization', `Bearer ${process.env.CANVAS_TOKEN}`)
   .end(err => {
-    if(err) return console.error(err.message, 'error');
+    if(err) return debug(err.message, 'error');
     debug('post successful');
   });
 };
 
-postGrade(arg1, arg2);
+
+if (typeof parseInt(arg1) === 'number') return postGrade(arg1, arg2);
+
+
 main(arg1);
