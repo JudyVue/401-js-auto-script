@@ -5,6 +5,7 @@ require('dotenv').config();
 const Promise = require('bluebird');
 const childProcess = Promise.promisifyAll(require('child_process'));
 const superagent = require('superagent');
+const debug = require('debug');
 
 
 //The ideal URL
@@ -25,7 +26,8 @@ let ungradedLabsURL = `${canvasURL}/assignments?bucket=ungraded&${perPage}`
 let className = 'codefellows-seattle-javascript-401d14';
 let ghURL = 'https://api.github.com';
 
-let command = process.argv[2];
+let arg1 = process.argv[2];
+let arg2 = process.argv[3];
 
 let gitFetch = 'git fetch origin pull';
 
@@ -64,27 +66,17 @@ const fetchPullRequests = (url, num) => {
 
 let canvasPostURL = 'https://canvas.instructure.com/api/v1/courses/1107581/assignments/5628634/submissions/5545113'
 
-let testComment = {
-  'comment[text_comment]': 'Judys test comment as posted by superagent',
-  'submission[posted_grade]': '3',
+
+const postGrade = (score, comment = null) => {
+  let gradeKey = 'submission[posted_grade]';
+  let commentKey = 'comment[text_comment]';
+  superagent.put(`${canvasPostURL}/?${gradeKey}=${score}&${commentKey}=${comment}`)
+  .set('Authorization', `Bearer ${process.env.CANVAS_TOKEN}`)
+  .end(err => {
+    if(err) return console.error(err.message, 'error');
+    console.log('post successful');
+  });
 };
 
-let testComment2 = new Map();
-
-//myMap.set(keyString, "value associated with 'a string'");
-testComment2.set('comment[text]', 'Judys test comment as posted by superagent');
-testComment2.set('submission[posted_grade]', '4');
-
-superagent.put(canvasPostURL)
-.set({
-  'Authorization': `Bearer ${process.env.CANVAS_TOKEN}`,
-  'Content-Type': 'application/json',
-  'Accept': 'application/json',
-})
-.send(testComment)
-.end((err, res) => {
-  if(err) return console.error(err.message, 'error');
-  console.log(res , 'post successful');
-});
-
+postGrade(arg1, arg2);
 // main(command);
