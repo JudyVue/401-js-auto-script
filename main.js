@@ -6,6 +6,7 @@ const Promise = require('bluebird');
 const childProcess = Promise.promisifyAll(require('child_process'));
 const superagent = require('superagent');
 const debug = require('debug')('grading');
+const fs = Promise.promisifyAll(require('fs'));
 
 
 //The ideal URL
@@ -43,18 +44,32 @@ const fetchLabRepoURLs = () => {
     index++;
     ghStorage[index] = repo.clone_url;
   }))
-  .then(() => debug(ghStorage, 'what'))
   .then(() => cloneMainLabRepo(ghStorage[1]))
   .then(() => makeStudentGitBranches(ghStorage[1], 1)
+  .then(() => cloneAPastRepo())
+  .then(() => lookUpPreviousLabs())
   .catch(err => console.error(err.message)));
 };
 
 const main = () => {
+
+
   Promise.all([
-    fetchCanvasStudents(),
+    // fetchCanvasStudents(),
     fetchLabRepoURLs(),
   ]);
+
 };
+
+const cloneAPastRepo = () => {
+  if (/^(\-|\+)?(\d+|Infinity)$/.test(arg1)){
+    console.log(ghStorage[arg1], 'logged???');
+    return cloneMainLabRepo(ghStorage[arg1])
+    .then(() => makeStudentGitBranches(ghStorage[arg1], 1));
+  }
+};
+
+
 
 const fetchCanvasStudents = () => {
   debug('fetchCanvasStudents');
@@ -86,19 +101,25 @@ const cloneMainLabRepo = (url) => {
 const makeStudentGitBranches = (url, num) => {
   debug('makeStudentGitBranches');
   let gitFetch = 'git fetch origin pull';
-  while(num){
-    let labName = url.split('/').pop().split('.git').join('').trim();
-    return childProcess.execAsync(`cd ${labName}; ${gitFetch}/${num}/head:${num}`)
-    .then(() => {
-      debug(`success fetching pull# ${num}`);
-      num++;
-      return makeStudentGitBranches(url, num);
-    })
-    .catch(() => {
-      if (num === 1) debug('This repo has no PRs.');
-      if (num > 1) debug('All PRs pulled down.');
-    });
-  }
+  var labName = url.split('/').pop().split('.git').join('').trim();
+  return dirExists(labName).then((res) => {
+    if (!res){
+      while(num){
+        return childProcess.execAsync(`cd ${labName}; ${gitFetch}/${num}/head:${num}`)
+        .then(() => {
+          debug(`success fetching pull# ${num}`);
+          num++;
+          return makeStudentGitBranches(url, num);
+        })
+        .catch(() => {
+          if (num === 1) debug('This repo has no PRs.');
+          if (num > 1) debug('All PRs pulled down.');
+        });
+      }
+    } else {
+      debug('folder exists so not pulling down PRs again')
+    }
+  });
 };
 
 let canvasPostURL = 'https://canvas.instructure.com/api/v1/courses/1107581/assignments/5628634/submissions/5545113'
@@ -114,14 +135,31 @@ const postGrade = (score, comment = null) => {
     debug('post successful');
   });
 };
- // /^(\-|\+)?([0-9]+|Infinity)$/.test(number)
- //^ set at beginning matches very beginning of input
-  //For example, /^A/ does not match the "A" in "an A", but does match the first "A" in "An A".
+// /^(\-|\+)?([0-9]+|Infinity)$/.test(number)
+//^ set at beginning matches very beginning of input
+//For example, /^A/ does not match the "A" in "an A", but does match the first "A" in "An A".
 // (\-|\+) means the beginning can start with either '-' or '+'
 // ? means the preceding (\-|\+) is optional
 // \d+ means look for all digits 0-9, the '+' right after means including multiple digit nums, i.e. '10' would fail without the '+' because it is > 1 char
 
 // |Infinity)$ means 'or Infinity' and $ ends the string lookup
-if (/^(\-|\+)?(\d+|Infinity)$/.test(arg1)) console.log(arg1, 'is a number');
+
+
+const lookUpPreviousLabs = () => {
+  if(arg1 === 'list' && arg2 === 'labs'){
+    return new Promise((resolve) => {
+      resolve(debug('\nType in the command "npm run start <number>" to clone the corresponding lab.\n', '\n',ghStorage));
+    });
+  }
+};
+
+const dirExists = (path) => {
+  debug('dirExists');
+  return fs.accessAsync(`${__dirname}/${path}`)
+  .then(() => debug(path, 'exists'))
+  .catch((err) => console.error(err))
+  .then(() => true);
+};
+
 
 main();
