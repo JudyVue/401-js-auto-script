@@ -4,6 +4,7 @@ require('dotenv').config();
 
 const Promise = require('bluebird');
 const childProcess = Promise.promisifyAll(require('child_process'));
+const cmd = require('node-cmd');
 
 
 //The ideal URL
