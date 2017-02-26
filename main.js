@@ -17,14 +17,13 @@ const debug = require('debug')('grading');
 
 
 let perPage = '?per_page=1000';
-let canvasURL = `https://canvas.instructure.com/api/v1/courses/${process.env.COURSE_ID}`;
+let canvasURL = `https://canvas.instructure.com/api/v1/courses/${process.env.CANVAS_COURSE_ID}`;
 
 let studentsURL = `${canvasURL}/students`
 
 let ungradedLabsURL = `${canvasURL}/assignments?bucket=ungraded&${perPage}`
 
-let className = 'codefellows-seattle-javascript-401d14';
-let ghURL = 'https://api.github.com';
+let ghURL = `https://api.github.com/orgs/${process.env.CF_COURSE_ID}`;
 
 let arg1 = process.argv[2];
 let arg2 = process.argv[3];
@@ -33,6 +32,16 @@ let canvasAuthHeader = {Authorization: `Bearer ${process.env.CANVAS_TOKEN}`};
 
 
 let githubAuthHeader = {Authorization: `Bearer ${process.env.GITHUB_TOKEN}`};
+
+const fetchLabRepoURLs = () => {
+  superagent.get(`${ghURL}/repos`)
+  .set(githubAuthHeader)
+  .then(res =>res.body.map(repo => repo.clone_url))
+  .then(cloneURLs => cloneURLs)
+  .catch(err => console.error(err.message));
+};
+
+
 
 
 const main = (url) => {
