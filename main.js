@@ -5,7 +5,7 @@ require('dotenv').config();
 const Promise = require('bluebird');
 const childProcess = Promise.promisifyAll(require('child_process'));
 const superagent = require('superagent');
-const debug = require('debug')('main');
+const debug = require('debug')('grading');
 
 
 //The ideal URL
@@ -29,17 +29,40 @@ let ghURL = 'https://api.github.com';
 let arg1 = process.argv[2];
 let arg2 = process.argv[3];
 
+let canvasAuthHeader = {Authorization: `Bearer ${process.env.CANVAS_TOKEN}`};
+
+
+let githubAuthHeader = {Authorization: `Bearer ${process.env.GITHUB_TOKEN}`};
 
 
 const main = (url) => {
   Promise.all([
     fetchMainLabRepo(url),
+    fetchCanvasStudents(),
     fetchPullRequests(url, 1),
   ]);
 };
 
+
+const fetchCanvasStudents = () => {
+  debug('fetchCanvasStudents');
+  superagent.get(studentsURL)
+  .set(canvasAuthHeader)
+  .then(res => res.body.map(student => {
+    let modStudent =  {
+      first: student.name.split(' ')[0].trim().toLowerCase(),
+      last: student.name.split(' ')[1].trim().toLowerCase(),
+      canvasID: student.id,
+    };
+    return modStudent;
+  }))
+  .then(students => console.log(students))
+  .catch(err => console.log(err.message));
+};
+
 //clones down the class's main lab repo
 const fetchMainLabRepo = (url) => {
+  debug('fetchMainLabRepo')
   return childProcess.execAsync(`git clone ${url}`)
   .then(() => {
     debug('success cloning main lab repo!');
@@ -49,6 +72,7 @@ const fetchMainLabRepo = (url) => {
 };
 
 const fetchPullRequests = (url, num) => {
+  debug('fetchPullRequests');
   let gitFetch = 'git fetch origin pull';
   while(num){
     let labName = url.split('/').pop().split('.git').join('').trim();
@@ -72,15 +96,20 @@ const postGrade = (score, comment = null) => {
   let gradeKey = 'submission[posted_grade]';
   let commentKey = 'comment[text_comment]';
   superagent.put(`${canvasPostURL}/?${gradeKey}=${score}&${commentKey}=${comment}`)
-  .set('Authorization', `Bearer ${process.env.CANVAS_TOKEN}`)
+  .set(canvasAuthHeader)
   .end(err => {
     if(err) return debug(err.message, 'error');
     debug('post successful');
   });
 };
+ // /^(\-|\+)?([0-9]+|Infinity)$/.test(number)
+ //^ set at beginning matches very beginning of input
+  //For example, /^A/ does not match the "A" in "an A", but does match the first "A" in "An A".
+// (\-|\+) means the beginning can start with either '-' or '+'
+// ? means the preceding (\-|\+) is optional
+// \d+ means look for all digits 0-9, the '+' right after means including multiple digit nums, i.e. '10' would fail without the '+' because it is > 1 char
 
+// |Infinity)$ means 'or Infinity' and $ ends the string lookup
+if (/^(\-|\+)?(\d+|Infinity)$/.test(arg1)) console.log(arg1, 'is a number');
 
-if (typeof parseInt(arg1) === 'number') return postGrade(arg1, arg2);
-
-
-main(arg1);
+// main(arg1);
