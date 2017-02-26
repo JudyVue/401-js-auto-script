@@ -4,7 +4,7 @@ require('dotenv').config();
 
 const Promise = require('bluebird');
 const childProcess = Promise.promisifyAll(require('child_process'));
-const cmd = require('node-cmd');
+const superagent = require('superagent');
 
 
 //The ideal URL
@@ -62,4 +62,29 @@ const fetchPullRequests = (url, num) => {
   }
 };
 
-main(command);
+let canvasPostURL = 'https://canvas.instructure.com/api/v1/courses/1107581/assignments/5628634/submissions/5545113'
+
+let testComment = {
+  'comment[text_comment]': 'Judys test comment as posted by superagent',
+  'submission[posted_grade]': '3',
+};
+
+let testComment2 = new Map();
+
+//myMap.set(keyString, "value associated with 'a string'");
+testComment2.set('comment[text]', 'Judys test comment as posted by superagent');
+testComment2.set('submission[posted_grade]', '4');
+
+superagent.put(canvasPostURL)
+.set({
+  'Authorization': `Bearer ${process.env.CANVAS_TOKEN}`,
+  'Content-Type': 'application/json',
+  'Accept': 'application/json',
+})
+.send(testComment)
+.end((err, res) => {
+  if(err) return console.error(err.message, 'error');
+  console.log(res , 'post successful');
+});
+
+// main(command);
