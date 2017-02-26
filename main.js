@@ -33,25 +33,28 @@ let canvasAuthHeader = {Authorization: `Bearer ${process.env.CANVAS_TOKEN}`};
 
 let githubAuthHeader = {Authorization: `Bearer ${process.env.GITHUB_TOKEN}`};
 
+let ghStorage = {};
+
 const fetchLabRepoURLs = () => {
   superagent.get(`${ghURL}/repos`)
   .set(githubAuthHeader)
-  .then(res =>res.body.map(repo => repo.clone_url))
-  .then(cloneURLs => cloneURLs)
-  .catch(err => console.error(err.message));
+  .then(res => res.body.reverse())
+  .then(repos => repos.forEach((repo, index) => {
+    index++;
+    ghStorage[index] = repo.clone_url;
+  }))
+  .then(() => debug(ghStorage, 'what'))
+  .then(() => cloneMainLabRepo(ghStorage[1]))
+  .then(() => makeStudentGitBranches(ghStorage[1], 1)
+  .catch(err => console.error(err.message)));
 };
 
-
-
-
-const main = (url) => {
+const main = () => {
   Promise.all([
-    fetchMainLabRepo(url),
     fetchCanvasStudents(),
-    fetchPullRequests(url, 1),
+    fetchLabRepoURLs(),
   ]);
 };
-
 
 const fetchCanvasStudents = () => {
   debug('fetchCanvasStudents');
@@ -65,13 +68,13 @@ const fetchCanvasStudents = () => {
     };
     return modStudent;
   }))
-  .then(students => console.log(students))
+  .then(students => debug(students, 'student info from canvas'))
   .catch(err => console.log(err.message));
 };
 
 //clones down the class's main lab repo
-const fetchMainLabRepo = (url) => {
-  debug('fetchMainLabRepo')
+const cloneMainLabRepo = (url) => {
+  debug('cloneMainLabRepo');
   return childProcess.execAsync(`git clone ${url}`)
   .then(() => {
     debug('success cloning main lab repo!');
@@ -80,8 +83,8 @@ const fetchMainLabRepo = (url) => {
   });
 };
 
-const fetchPullRequests = (url, num) => {
-  debug('fetchPullRequests');
+const makeStudentGitBranches = (url, num) => {
+  debug('makeStudentGitBranches');
   let gitFetch = 'git fetch origin pull';
   while(num){
     let labName = url.split('/').pop().split('.git').join('').trim();
@@ -89,7 +92,7 @@ const fetchPullRequests = (url, num) => {
     .then(() => {
       debug(`success fetching pull# ${num}`);
       num++;
-      return fetchPullRequests(url, num);
+      return makeStudentGitBranches(url, num);
     })
     .catch(() => {
       if (num === 1) debug('This repo has no PRs.');
@@ -121,4 +124,4 @@ const postGrade = (score, comment = null) => {
 // |Infinity)$ means 'or Infinity' and $ ends the string lookup
 if (/^(\-|\+)?(\d+|Infinity)$/.test(arg1)) console.log(arg1, 'is a number');
 
-// main(arg1);
+main();
