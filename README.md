@@ -8,7 +8,7 @@ npm run start
 
 Clones the most recent lab and pulls down the PRs. Students' PRs are formed into their own branches, saving the TA the space of having different folders for each student's cloned repo.
 
-``
+```
 npm run start list labs
 ```
 
