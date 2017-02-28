@@ -8,12 +8,9 @@ const githubCmd = require('./lib/github-command');
 const canvasCmd = require('./lib/canvas-api');
 
 const main = () => {
-
-
-  Promise.all([
-    // fetchCanvasStudents(),
-    githubCmd.fetchLabRepoURLs(),
-  ]);
+  return Promise.resolve(githubCmd.fetchLabRepoURLs())
+    .then(labName => canvasCmd.canvasAPIPromiseChain(labName))
+    .catch(err => console.log(err.message));
 
 };
 main();
