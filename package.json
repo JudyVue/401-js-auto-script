@@ -1,0 +1,25 @@
+{
+  "name": "grading-script",
+  "version": "1.0.0",
+  "description": "Automated cloning script for Advanced JavaScript 401 TA's",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "DEBUG=grading* node main.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bluebird": "^3.4.7",
+    "casperjs": "^1.1.3",
+    "debug": "^2.6.1",
+    "dotenv": "^4.0.0",
+    "phantomjs": "^2.1.7",
+    "superagent": "^3.4.4"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "mocha": "^3.2.0"
+  }
+}
