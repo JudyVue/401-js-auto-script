@@ -5,7 +5,11 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "DEBUG=grading* node main.js"
+    "start": "DEBUG=grading* node main.js",
+    "list-labs": "DEBUG=grading* node main.js list labs",
+    "grade": "DEBUG=grading* node main.js grade",
+    "show-students": "DEBUG=grading* node main.js show students",
+    "show-ungraded": "DEBUG=grading* node main.js show ungraded"
   },
   "keywords": [],
   "author": "",

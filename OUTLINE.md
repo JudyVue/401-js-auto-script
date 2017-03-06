@@ -26,3 +26,17 @@
           }
       f. ungraded readings: an array of student's ungraded readings (for stretch goal to just run another Node script that automatically grades students' readings)
       g. github-username
+
+//Students looks like this
+{ 'david-p': { canvasID: 5544988, first: 'David', last: 'Porter' },
+ 'devon-h': { canvasID: 5826283, first: 'Devon', last: 'Hackley' },
+ 'geno-g': { canvasID: 5816167, first: 'Geno', last: 'Guerrero' },
+ 'irvine-d': { canvasID: 5638002, first: 'Irvine', last: 'Downing' },
+ 'jaren-e': { canvasID: 5920591, first: 'Jaren', last: 'Escueta' },
+ 'kenneth-e': { canvasID: 5545113, first: 'Kenneth', last: 'Edwards' },
+ 'stephen-a': { canvasID: 5833881, first: 'Stephen', last: 'Anderson' },
+ 'thomas-m': { canvasID: 5603377, first: 'Thomas', last: 'Martinez' } }
+
+ ungraded assignments look like this
+ { '1': { canvasAssnID: 5628635, name: 'Read: Streams' },
+  '2': { canvasAssnID: 5939286, name: 'Code Lab 36 and Beyond - Slog' } }
