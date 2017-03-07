@@ -87,7 +87,7 @@ This command will post a student's grade to Canvas directly from the terminal. F
 npm run grade 1 david-p 30 "great job"
 ```
 
-The number ``1`` maps back to the JSON object returned from the command ``npm show-ungraded``. Typing ``david-p`` maps back to the JSON object that displays my list of students with their Canvas ID numbers. The ``score`` is a number and the ``comment`` is an additonal comment to post to Canvas. The comment **MUST** be in double quotes on the terminal. If no comment is sent, the literal word **undefined** is posted ot the student's Canvas. 
+The number ``1`` maps back to the JSON object returned from the command ``npm show-ungraded``. Typing ``david-p`` maps back to the JSON object that displays my list of students with their Canvas ID numbers. The ``score`` is a number and the ``comment`` is an additonal comment to post to Canvas. The comment **MUST** be in double quotes on the terminal. If no comment is sent, the literal word **undefined** is posted on the student's Canvas. 
 
 
 ###Stretch Goals for this script
