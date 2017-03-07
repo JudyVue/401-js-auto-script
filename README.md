@@ -1,6 +1,6 @@
 #Automatic Cloning Script for TA's of Codefellows Advanced JavaScript 401
 
-This is a script that automatically clones and pulls down pull request submissions of students' labs. These docs will become more robust in the future as I build up this app. As of March 6, 2017, the following commands exist:
+This is a script that automatically clones and pulls down pull request submissions of students' labs, in addition to allowing a TA to post a student's grade to Canvas directly from the terminal. These docs will become more robust in the future as I build up this app. As of March 6, 2017, the following commands exist:
 
 
 ##Cloning Down the Most Recent Lab
