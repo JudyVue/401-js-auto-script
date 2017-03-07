@@ -4,7 +4,7 @@
   "description": "Automated cloning script for Advanced JavaScript 401 TA's",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "./node_modules/mocha/bin/mocha",
     "start": "DEBUG=grading* node main.js",
     "list-labs": "DEBUG=grading* node main.js list labs",
     "grade": "DEBUG=grading* node main.js grade",
