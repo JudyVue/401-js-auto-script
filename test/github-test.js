@@ -34,7 +34,7 @@ describe('testing respones from Github API', function(){
     });
 
     it('should make a get request to the selected pull URL and iterate through all pull numbers with a newly formed object of github user name and their pull number', (done) => {
-      superagent.get(this.pulls[1])
+      superagent.get(this.pulls[2])
       .set(githubAuthHeader)
       .then(res => {
         let pullNumbers = res.body.map(pull => {
