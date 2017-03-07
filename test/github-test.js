@@ -24,14 +24,37 @@ describe('testing respones from Github API', function(){
       .then(res => {
         this.pulls = res.body.map(repo => repo.pulls_url.split('{/number}')[0].trim());
         this.pulls = reverse(this.pulls);
-        console.log(this.pulls);
+        // console.log(this.pulls);
         expect(res.status).to.equal(200);
         expect(Array.isArray(res.body)).to.equal(true);
         expect(this.pulls).to.deep.equal(pullsURLs);
         done();
-      });
+      })
+      .catch(done);
     });
 
+    it('should make a get request to the selected pull URL and iterate through all pull numbers with a newly formed object of github user name and their pull number', (done) => {
+      superagent.get(this.pulls[1])
+      .set(githubAuthHeader)
+      .then(res => {
+        let pullNumbers = res.body.map(pull => {
+          return {
+            user: pull.user.login,
+            number: pull.number,
+          };
+        });
+        console.log(pullNumbers);
+        expect(Array.isArray(pullNumbers)).to.equal(true);
+        pullNumbers.forEach(pull => {
+          expect(pull).to.be.an('object');
+          expect(pull).to.have.property('user');
+          expect(pull).to.have.property('number');
+          expect(pull.number).to.be.a('number');
+        });
+        done();
+      })
+      .catch(done);
+    });
 
   });
 });
