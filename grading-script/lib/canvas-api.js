@@ -9,16 +9,31 @@ const superagent = require('superagent');
 const debug = require('debug')('grading-canvas');
 
 
+//url configs
 let perPage = '?per_page=1000';
 let canvasURL = `https://canvas.instructure.com/api/v1/courses/${process.env.CANVAS_COURSE_ID}`;
 let studentsURL = `${canvasURL}/students`;
 let ungradedLabsURL = `${canvasURL}/assignments?bucket=ungraded&${perPage}`;
+let sectionURL = `${canvasURL}/sections/${process.env.CANVAS_SECTION_ID}?include[]=students`
 let canvasAuthHeader = {Authorization: `Bearer ${process.env.CANVAS_TOKEN}`};
+let allLabsURL = `${canvasURL}/assignments${perPage}`;
+
+//config objects
 let canvasLabs = {};
 let studentSubmissions = [];
 let studentStorage = {};
 
-let allLabsURL = `${canvasURL}/assignments${perPage}`;
+
+exports.fetchTASection = (arg1, arg2) => {
+  if(arg1 === 'show' && arg2 === 'section'){
+    superagent.get(sectionURL)
+    .set(canvasAuthHeader)
+    .then(res => {
+      console.log('what?,', res.body.students);
+    });
+  }
+};
+
 
 exports.postGrade = (arg1, labNumber, studentName, score, comment) => {
   if(arg1 === 'grade'){
