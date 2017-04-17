@@ -35,7 +35,7 @@ exports.fetchTASection = (arg1, arg2) => {
 };
 
 
-exports.postGrade = (arg1, labNumber, studentName, score, comment) => {
+exports.postGrade = (arg1, labNumber, studentName, score, comment = ' ') => {
   if(arg1 === 'grade'){
     debug('postGrade');
     let gradeKey = 'submission[posted_grade]';

@@ -9,7 +9,8 @@
     "list-labs": "DEBUG=grading* node main.js list labs",
     "grade": "DEBUG=grading* node main.js grade",
     "show-students": "DEBUG=grading* node main.js show students",
-    "show-ungraded": "DEBUG=grading* node main.js show ungraded"
+    "show-ungraded": "DEBUG=grading* node main.js show ungraded",
+    "show-my-section": "DEBUG=grading* node main.js show section"
   },
   "keywords": [],
   "author": "",

@@ -15,8 +15,8 @@ const arg5 = process.argv[6];
 const main = (arg1, arg2, arg3, arg4, arg5) => {
   Promise.all([
     canvasCmd.fetchCanvasStudents(arg1, arg2, arg3, arg4, arg5),
-    canvasCmd.fetchTASection(arg1, arg2)
-    //githubCmd.fetchLabRepoURLs(arg1, arg2),
+    // canvasCmd.fetchTASection(arg1, arg2)
+    githubCmd.fetchLabRepoURLs(arg1, arg2),
   ]);
 };
 main(arg1, arg2, arg3, arg4, arg5);
