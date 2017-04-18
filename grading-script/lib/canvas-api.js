@@ -18,7 +18,7 @@ let perPage = '?per_page=1000';
 let canvasURL = `https://canvas.instructure.com/api/v1/courses/${process.env.CANVAS_COURSE_ID}`;
 let studentsURL = `${canvasURL}/students`;
 let ungradedLabsURL = `${canvasURL}/assignments?bucket=ungraded&${perPage}`;
-let sectionURL = `${canvasURL}/sections/${process.env.CANVAS_SECTION_ID}?include[]=students`
+let sectionURL = `${canvasURL}/sections/${process.env.CANVAS_SECTION_ID}?include[]=students`;
 let canvasAuthHeader = {Authorization: `Bearer ${process.env.CANVAS_TOKEN}`};
 let allLabsURL = `${canvasURL}/assignments${perPage}`;
 
@@ -33,10 +33,23 @@ exports.fetchTASection = (arg1, arg2) => {
     superagent.get(sectionURL)
     .set(canvasAuthHeader)
     .then(res => {
-      console.log('what?,', res.body.students);
-    });
+      return sortStudents(res.body.students);
+    })
+    .then(students => {
+      console.log(setStudentStorage(students, studentStorage), 'hahaha');
+      return setStudentStorage(students, studentStorage);
+    })
+    .then((studentStorage) => studentStorage)
+    .then(() => exports.showStudents(arg1, arg2))
+    .then(() => exports.fetchUngradedLabs())
+    .then(() => exports.showAssignments(arg1, arg2))
+    .then(() => exports.fetchSubmissionsOfEachLab())
+    .then(() => exports.showRemainingSubmissions())
+    // .then(() => exports.postGrade(arg1, arg2, arg3, arg4, arg5))
+    .catch((err) => console.error(err.message));
   }
 };
+
 
 
 exports.postGrade = (arg1, labNumber, studentName, score, comment = ' ') => {
@@ -91,24 +104,24 @@ exports.fetchCanvasStudents = (arg1, arg2, arg3, arg4, arg5) => {
   .catch((err) => console.error(err.message));
 };
 
-
-
 exports.fetchUngradedLabs = () => {
   console.log(ungradedLabsURL, 'lala');
   return superagent.get(ungradedLabsURL)
   .set(canvasAuthHeader)
   .then(res =>  {
-    let ungraded = JSON.parse(res.text);
+    let ungraded = res.body;
     return ungraded;
   })
-  .then(assns => assns.map((ass, index) => {
-    index++;
-    canvasLabs[index] = {
-      canvasAssnID: ass.id,
-      name: ass.name,
-      pointsPossible: ass.points_possible,
-    };
-  }))
+  .then(assns => {
+    return assns.map((ass, index) => {
+      index++;
+      return canvasLabs[index] = {
+        canvasAssnID: ass.id,
+        name: ass.name,
+        pointsPossible: ass.points_possible,
+      };
+    });
+  })
   .catch(err => console.error(err.message));
 };
 //
@@ -127,33 +140,36 @@ exports.fetchSubmissionsOfEachLab = () => {
 };
 
 
-// exports.fetchSubmissionsOfEachLab = () => {
-//     Object.keys(canvasLabs).forEach((assn) => {
-//       superagent.get(`${canvasURL}/assignments/${canvasLabs[assn].canvasAssnID}/submissions${perPage}`)
-//       .set(canvasAuthHeader)
-//       .then(res => {
-//         studentSubmissions = studentSubmissions.concat(res.body.filter(sub => sub.workflow_state === 'submitted'));
-//         resolve(studentSubmissions);
-//       })
-//       .catch(err => console.error(err.message))
-//       .then(() => {
-//       // console.log(studentSubmissions, 'line 117');
-//       studentSubmissions = studentSubmissions.map(sub => {
-//         let subObj = {
-//           assnID: sub.assignment_id,
-//           userID: sub.user_id,
-//           type: sub.submission_type,
-//         };
-//         if(sub.preview_url && typeof sub.preview_url !== 'undefined')
-//           subObj.canvasURL = sub.preview_url.split('?')[0].trim();
-//         return subObj;
-//       });
-//       return studentSubmissions;
-//     })
-//     .then(() => linkAssnNameToSubmissions())
-//     .then(() => mapSubmissionsToStudents())
-//     .catch(err => console.error(err.message));
-//   }
+exports.fetchSubmissionsOfEachLab = () => {
+  console.log('lol');
+  Object.keys(canvasLabs).forEach((assn) => {
+    superagent.get(`${canvasURL}/assignments/${canvasLabs[assn].canvasAssnID}/submissions${perPage}`)
+    .set(canvasAuthHeader)
+    .then(res => {
+      studentSubmissions = studentSubmissions.concat(res.body.filter(sub => sub.workflow_state === 'submitted'));
+      return studentSubmissions;
+    })
+    .catch(err => console.error(err.message))
+    .then(() => {
+      // console.log(studentSubmissions, 'line 117');
+      studentSubmissions = studentSubmissions.map(sub => {
+        let subObj = {
+          assnID: sub.assignment_id,
+          userID: sub.user_id,
+          type: sub.submission_type,
+        };
+        if(sub.preview_url && typeof sub.preview_url !== 'undefined') {
+          subObj.canvasURL = sub.preview_url.split('?')[0].trim();
+        }
+        return subObj;
+      });
+      return studentSubmissions;
+    })
+    .then(() => _linkAssnNameToSubmissions())
+    .then(() => _mapSubmissionsToStudents())
+    .catch(err => console.error(err.message));
+  });
+};
 
 
 const _linkAssnNameToSubmissions = () => {
@@ -175,7 +191,7 @@ const _linkAssnNameToSubmissions = () => {
 //       if(sub.userID === studentStorage[student].canvasID){
 //         studentStorage[student].submissions.push(sub);
 //       }
-//       console.log(student, ':\n', studentStorage[student].submissions);
+//       console.log(student, ':\n', studentStorage[student].submissions, 'hahaha');
 //     });
 //   });
 //   return studentStorage;
@@ -192,9 +208,10 @@ const _mapSubmissionsToStudents = () => {
 
         studentStorage[student].submissions[count] = sub;
       }
-      // console.log(student, ':\n', studentStorage[student].submissions);
+      // console.log(student, ':\n', studentStorage[student].submissions, 'haha');
     });
   });
+  console.log(studentStorage['cameron-b'], 'haha');
   return studentStorage;
 };
 
