@@ -8,6 +8,10 @@ require('dotenv').config();
 const superagent = require('superagent');
 const debug = require('debug')('grading-canvas');
 
+//app modules
+const {sortStudents} = require('../helpers/optimization');
+const {setStudentStorage} = require('../helpers/optimization');
+
 
 //url configs
 let perPage = '?per_page=1000';
@@ -72,33 +76,10 @@ exports.fetchCanvasStudents = (arg1, arg2, arg3, arg4, arg5) => {
   superagent.get(studentsURL)
   .set(canvasAuthHeader)
   .then(res => {
-    return res.body.sort((a, b) =>{
-      let lowA = a.name.toLowerCase();
-      let lowB= b.name.toLowerCase();
-      if (lowA < lowB) return -1;
-      if (lowA > lowB) return 1;
-      return 0;
-    });
+    return sortStudents(res.body)
   })
   .then(res => {
-    res.map(student => {
-      if(student.name.split(' ').length === 1){
-        let studentName = student.name.split(' ')[0].trim();
-        studentStorage[studentName] = {
-          canvasID: student.id,
-          first: studentName,
-          last: null,
-        };
-      } else {
-        let studentName = `${student.name.split(' ')[0].trim().toLowerCase()}-${student.name.split(' ')[1].trim()[0].toLowerCase()}`;
-        studentStorage[studentName] = {
-          canvasID: student.id,
-          first: student.name.split(' ')[0].trim(),
-          last: student.name.split(' ')[1].trim(),
-        };
-      }
-    });
-    return studentStorage;
+    return setStudentStorage(res, studentStorage);
   })
   .then((studentStorage) => studentStorage)
   .then(() => exports.showStudents(arg1, arg2))
